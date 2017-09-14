@@ -1,11 +1,15 @@
 package testApi;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +41,8 @@ public class TestApi {
 
 		Logger t = new Logger();
 		TestApi d = new TestApi();
-		List<String> contents = d.getFiles("C:\\Users\\Juet\\Desktop\\업무(PC)\\study\\사장님 연구 과제\\SKStudy\\text");
+//		List<String> contents = d.getFiles("C:\\Users\\Juet\\Desktop\\업무(PC)\\study\\사장님 연구 과제\\SKStudy\\text");
+		List<String> contents = d.getFiles("C:\\Users\\Juet\\Desktop\\업무(PC)\\study\\사장님 연구 과제\\SKStudy\\사장님Sample\\106_테스트 데이터_170914");
 
 		NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
 				NaturalLanguageUnderstanding.VERSION_DATE_2017_02_27, "4dd8d745-fd2c-4436-988c-9adf62df123f",
@@ -58,7 +63,7 @@ public class TestApi {
 
 		CategoriesOptions categoriesOptions = new CategoriesOptions();
 
-		ConceptsOptions conceptsOptions = new ConceptsOptions.Builder().build();
+		ConceptsOptions conceptsOptions = new ConceptsOptions.Builder().limit(50).build();
 
 		Features features = new Features.Builder().entities(entitiesOptions).keywords(keywordsOptions)
 				.categories(categoriesOptions).concepts(conceptsOptions).sentiment(sentimentOptions).build();
@@ -79,13 +84,40 @@ public class TestApi {
 		d.jsonToText(jArray);
 	}
 
+	public List<String> writeFiles(String dir, List<String> contents) {
+		File file = new File(dir);
+		try {
+			BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "utf-8"));
+			for (String str : contents) {
+				wr.write(str);
+			}
+			wr.flush();
+			wr.close();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	/**
 	 * @param jArray
-	 * 사실 단순히 문자열을 받는 향상된 스위치 문이나, 이프문을 사용헤서 걸러도 충분히 제이슨 파일을 간단히 다룰 수 있다. 다만 하드코딩을 벗어나서 코딩을 해보자는 생각에 이렇게 복잡한 중첩 반복문을 사용하게 되었다.
-	 * 그다지 효율적인 코드라고 할 수 없다.
+	 *            사실 단순히 문자열을 받는 향상된 스위치 문이나, 이프문을 사용헤서 걸러도 충분히 제이슨 파일을 간단히 다룰 수 있다.
+	 *            다만 하드코딩을 벗어나서 코딩을 해보자는 생각에 이렇게 복잡한 중첩 반복문을 사용하게 되었다. 그다지 효율적인 코드라고
+	 *            할 수 없다.
 	 */
 	public void jsonToText(JSONArray jArray) {
 		// t.l("jsonArray in method : \n"+jArray);
+
+		int listCount = 1;
+		List<String> contents = new ArrayList<String>();
 		try {
 			for (int f = 0; f < jArray.size(); f++) {
 				JSONObject jsonObject = (JSONObject) jArray.get(f);
@@ -98,6 +130,7 @@ public class TestApi {
 				for (String jNames : jsonNames) {
 					t.l("\n\r" + f + ". " + "jsonNames in method: " + jNames + "\n\r");
 					if (jNames != null && (jNames.equals("language") || jNames.equalsIgnoreCase("analyzedText"))) {
+						contents.add(jNames+" - "+jsonObject.getString(jNames));
 						continue;
 					}
 					try {
@@ -106,10 +139,20 @@ public class TestApi {
 						t.l("getNames Length : " + JSONObject.getNames(obj).length + ", getNames name[0] : "
 								+ JSONObject.getNames(obj)[0]);
 						String[] objNames = JSONObject.getNames(obj);
+						String row = "";
 						for (int g = 0; g < JSONObject.getNames(obj).length; g++) {
 							t.l(g + ". objNAmes : " + objNames[g]);
+							String key = objNames[g];
 							t.l(f + "-1. obj : " + obj.get(JSONObject.getNames(obj)[g]));
+							String value = "" + obj.get(JSONObject.getNames(obj)[g]);
+							t.l(f + "-1-" + listCount + ". key : " + key + ", value : " + value);
+							// contents.add(key+" : "+value);
+							row += key + " : " + value + ", ";
+							listCount++;
 						}
+						String editRow = row.substring(0, row.length() - 2);
+						contents.add(jNames + " - " + editRow);
+
 					} catch (JSONException e) {
 						e.printStackTrace();
 						org.json.JSONArray obj = jsonObject.getJSONArray(jNames);
@@ -117,14 +160,25 @@ public class TestApi {
 						for (int g = 0; g < obj.length(); g++) {
 							JSONObject aObj = obj.getJSONObject(g);
 							// t.l(f + "-2. aObj length : " + aObj.length());
+							String row = "";
 							for (int z = 0; z < aObj.length(); z++) {
 								String[] aObjNames = JSONObject.getNames(aObj);
+								String key = aObjNames[z];
 								t.l(z + ". aObjNames : " + aObjNames[z]);
+								String value = "" + aObj.get(JSONObject.getNames(aObj)[z]);
 								t.l(f + "-2. aObj : " + aObj.get(JSONObject.getNames(aObj)[z]));
+								t.l(f + "-2" + listCount + ". key : " + key + ", value : " + value);
+								// contents.add(key+" : "+value);
+								row += key + " : " + value + ", ";
 							}
+							String editRow = row.substring(0, row.length() - 2);
+							contents.add(jNames + " - " + editRow);
 						}
 					}
 				}
+			} 
+			for (String string : contents) {
+				t.l("contents Check : " + string);
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
