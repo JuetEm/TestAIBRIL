@@ -11,58 +11,59 @@ import java.util.Random;
 
 public class Logger {
 
-	int k;
+	static int k = 0;
 	boolean messageSwitch;
-	
+
 	String identifier;
-	String log;
+	static String log = "";
 	String logDirectory;
-	
+
 	public Logger() {
 		// TODO Auto-generated constructor stub
-		this.k = 0;
+		// this.k = 0;
 		this.messageSwitch = true;
-		this.log = "";
+		// this.log = "";
 	}
-	
+
 	public Logger(boolean message) {
-		this.k = 0;
+		// this.k = 0;
 		this.messageSwitch = message;
-		this.log = "";
+		// this.log = "";
 	}
-	
+
 	public Logger(boolean message, String identifier) {
-		this.k = 0;
+		// this.k = 0;
 		this.messageSwitch = message;
-		this.log = "";
-		this.identifier =identifier;
+		// this.log = "";
+		this.identifier = identifier;
 	}
-	
+
 	/**
 	 * @param dir
 	 * 
-	 * 생성자를 사용해서 동적으로 로그파일을 생성해보려 했으나 NullPointerException을 뱉으며 생성되지 않는다.
+	 *            생성자를 사용해서 동적으로 로그파일을 생성해보려 했으나 NullPointerException을 뱉으며 생성되지 않는다.
 	 */
 	public Logger(String identifier) {
 		this.identifier = identifier;
-//		logFile(log, logDirectory);
+		// logFile(log, logDirectory);
 	}
-	
+
 	public void l(String message) {
-		if(messageSwitch) {
-		System.out.println(k+". log : "+message);
-		k++;
+		if (messageSwitch) {
+			System.out.println(k + ". log : " + message);
+			// k++;
 		}
-		log += k+". "+message+"\n\r";
+		log += k + ". " + message + "\n\r";
+		// TestApilog += k+". "+message+"\n\r";
+		k++;
 	}
-	
+
 	public void logFile(String log, String resultDirectory) {
 		try {
 			String fileName = generateFileName();
 			BufferedWriter bwr = new BufferedWriter(
-					new OutputStreamWriter(
-							new FileOutputStream(resultDirectory+fileName, true),"utf-8"));
-			bwr.write(log+"\r\n");
+					new OutputStreamWriter(new FileOutputStream(resultDirectory + fileName, true), "utf-8"));
+			bwr.write(log + "\r\n");
 			bwr.flush();
 			bwr.close();
 		} catch (UnsupportedEncodingException e) {
@@ -76,9 +77,9 @@ public class Logger {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String generateFileName() {
-//		+"\\"+System.getProperties().getProperty("user.name")+"_"++".txt"
+		// +"\\"+System.getProperties().getProperty("user.name")+"_"++".txt"
 		int min, max, randomNum;
 		String filename = "";
 		String time = "";
@@ -90,7 +91,7 @@ public class Logger {
 		min = 0;
 		max = 999999999;
 		randomNum = random.nextInt(max - min + 1) + min;
-		filename = "\\"+time+"_"+username+"_"+randomNum+"_"+identifier+".txt";
+		filename = "\\" + time + "_" + username + "_" + randomNum + "_" + identifier + ".json";
 		return filename;
 	}
 
